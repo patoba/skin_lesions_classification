@@ -11,3 +11,5 @@ norm_std = (0.2023, 0.1994, 0.2010)
 batch_size = 10
 validation_batch_size = 10
 shape = (224, 224)
+
+checkpoints_dir = "../checkpoints"

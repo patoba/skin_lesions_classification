@@ -17,7 +17,6 @@ y = metadata["label"].unique()
 class_weights = compute_class_weight(class_weight = "balanced",
                                     classes = np.unique(y),
                                     y = y)
-class_weights = torch.FloatTensor(class_weights)
 
 transform_train = transforms.Compose([
                     transforms.Resize(shape),
@@ -61,7 +60,7 @@ test_samples = SubsetRandomSampler(test_indices)
 
 train_data_loader = torch.utils.data.DataLoader(dataset, 
                             batch_size = batch_size, shuffle=False,
-                            num_workers=1, sampler = train_samples)
+                            num_workers = 1, sampler = train_samples)
 validation_data_loader = torch.utils.data.DataLoader(dataset, 
                             batch_size = validation_batch_size, 
                             shuffle = False, sampler = val_samples)
