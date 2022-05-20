@@ -6,3 +6,4 @@ pip install pytorch-lightning
 pip install jupyterlab
 pip install sklearn
 pip install matplotlib
+pip install torchmetrics
