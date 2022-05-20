@@ -1,15 +1,26 @@
-norm_mean = (0.4914, 0.4822, 0.4465)
-norm_std = (0.2023, 0.1994, 0.2010)
+import numpy as np
 
-batch_size = 10
-validation_batch_size = 10
+from sklearn.utils.class_weight import compute_class_weight
 
-# We compute the weights of individual classes and convert them to tensors
-class_weights = estimate_weights_mfb(label)
+import torch
+import torchvision
+from torchvision import transforms
+from torch.utils.data.sampler import SubsetRandomSampler
+
+from sampleo import StratifiedSampler
+from constantes import test_size, dest_dir, val_size, shape, norm_mean, \
+                        norm_std, batch_size, validation_batch_size
+from lectura_data import metadata
+
+y = metadata["label"].unique()
+
+class_weights = compute_class_weight(class_weight = "balanced",
+                                    classes = np.unique(y),
+                                    y = y)
 class_weights = torch.FloatTensor(class_weights)
 
 transform_train = transforms.Compose([
-                    transforms.Resize((224,224)),
+                    transforms.Resize(shape),
                     transforms.RandomHorizontalFlip(),
                     transforms.RandomRotation(degrees=60),
                     transforms.ToTensor(),
@@ -17,7 +28,47 @@ transform_train = transforms.Compose([
                     ])
 
 transform_test = transforms.Compose([
-                    transforms.Resize((224,224)),
+                    transforms.Resize(shape),
                     transforms.ToTensor(),
-                    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+                    transforms.Normalize(norm_mean, norm_std),
                     ])
+
+dataset = torchvision.datasets.ImageFolder(root = dest_dir)
+data_label = [s[1] for s in dataset.samples]
+
+ss = StratifiedSampler(torch.FloatTensor(data_label), test_size)
+pre_train_indices, test_indices = ss.gen_sample_array()
+
+train_label = np.delete(data_label, test_indices, None)
+ss = StratifiedSampler(torch.FloatTensor(train_label), val_size)
+train_indices, val_indices = ss.gen_sample_array()
+
+indices = {'train': pre_train_indices[train_indices],  
+           'val': pre_train_indices[val_indices],  
+           'test': test_indices
+           }
+
+train_indices = indices['train']
+val_indices = indices['val']
+test_indices = indices['test']
+
+dataset = torchvision.datasets.ImageFolder(root= dest_dir, 
+                                            transform=transform_train)
+
+train_samples = SubsetRandomSampler(train_indices)
+val_samples = SubsetRandomSampler(val_indices)
+test_samples = SubsetRandomSampler(test_indices)
+
+train_data_loader = torch.utils.data.DataLoader(dataset, 
+                            batch_size = batch_size, shuffle=False,
+                            num_workers=1, sampler = train_samples)
+validation_data_loader = torch.utils.data.DataLoader(dataset, 
+                            batch_size = validation_batch_size, 
+                            shuffle = False, sampler = val_samples)
+
+dataset = torchvision.datasets.ImageFolder(root = dest_dir, 
+                                           transform = transform_test)
+test_data_loader = torch.utils.data.DataLoader(dataset, 
+                                            batch_size = validation_batch_size, 
+                                            shuffle=False, sampler=test_samples)
+
