@@ -16,7 +16,7 @@ y = metadata["label"].unique()
 
 class_weights = compute_class_weight(class_weight = "balanced",
                                     classes = np.unique(y),
-                                    y = y)
+                                    y = list(metadata["label"]))
 
 transform_train = transforms.Compose([
                     transforms.Resize(shape),

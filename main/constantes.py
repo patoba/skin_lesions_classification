@@ -1,6 +1,11 @@
-main_dir = "../datos"
-data_dir = main_dir + "/imagenes_train"
-dest_dir = main_dir + "/imagenes_train_mod"
+from pathlib import Path
+
+main_dir = Path(__file__).parent / "../.."
+main_dir = main_dir.resolve()
+main_dir = str(main_dir)
+
+data_dir = main_dir + "/datos/imagenes_train"
+dest_dir = main_dir + "/datos/imagenes_train_mod"
 
 test_size = 0.2
 val_size = 0.2
@@ -12,4 +17,5 @@ batch_size = 10
 validation_batch_size = 10
 shape = (224, 224)
 
-checkpoints_dir = "../checkpoints"
+checkpoints_dir = main_dir + "/checkpoints"
+logs_dir = main_dir + "/logs"

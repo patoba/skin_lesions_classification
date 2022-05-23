@@ -5,9 +5,9 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 from preprocesamiento import train_data_loader, validation_data_loader, \
                              class_weights
-from constantes import checkpoints_dir
+from constantes import checkpoints_dir, logs_dir
 
-tb_logger = pl_loggers.TensorBoardLogger(save_dir="../logs/")
+tb_logger = pl_loggers.TensorBoardLogger(save_dir=logs_dir)
 
 model = RedNeuronal(class_weights)
 trainer = pl.Trainer(accelerator="gpu", precision = 16, 
